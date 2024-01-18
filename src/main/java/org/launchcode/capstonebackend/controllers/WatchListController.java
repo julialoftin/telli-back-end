@@ -1,5 +1,6 @@
 package org.launchcode.capstonebackend.controllers;
 
+import jakarta.validation.Valid;
 import org.launchcode.capstonebackend.models.WatchList;
 import org.launchcode.capstonebackend.models.data.WatchListRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ public class WatchListController {
     WatchListRepository watchListRepository;
 
     @PostMapping("/create-watchlist")
-    public ResponseEntity<WatchList> processCreateWatchListForm(@RequestBody WatchList newWatchList, Errors errors) {
+    public ResponseEntity<WatchList> processCreateWatchListForm(@RequestBody @Valid WatchList newWatchList, Errors errors) {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().build();
         }
