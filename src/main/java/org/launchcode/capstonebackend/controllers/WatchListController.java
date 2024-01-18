@@ -6,19 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin
 public class WatchListController {
 
     @Autowired
     WatchListRepository watchListRepository;
 
-    @PostMapping("/watchlist")
+    @PostMapping("/create-watchlist")
     public ResponseEntity<WatchList> processCreateWatchListForm(@RequestBody WatchList newWatchList, Errors errors) {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().build();
