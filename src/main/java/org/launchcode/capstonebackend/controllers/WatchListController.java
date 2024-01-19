@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 @CrossOrigin
@@ -29,6 +31,13 @@ public class WatchListController {
             System.out.println("Error saving WatchList to database: " + exception.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @GetMapping("/get-watchlists")
+    public List<WatchList> getAllWatchLists() {
+
+        return watchListRepository.findAllAsList();
+
     }
 
 }
