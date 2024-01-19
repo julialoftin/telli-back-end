@@ -36,8 +36,9 @@ public class WatchListController {
     @GetMapping("/get-watchlists")
     public List<WatchList> getAllWatchLists() {
 
-        return watchListRepository.findAllAsList();
+        List<WatchList> watchLists = (List<WatchList>) watchListRepository.findAll();
 
+        return watchLists;
     }
 
 }
