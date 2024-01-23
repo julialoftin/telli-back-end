@@ -53,8 +53,11 @@ public class WatchListController {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().build();
         }
+
         Optional<WatchList> optionalWatchList = watchListRepository.findById(watchListId);
+
         try {
+
             if (optionalWatchList.isEmpty()) {
                 return ResponseEntity.notFound().build();
             } else {
@@ -65,9 +68,13 @@ public class WatchListController {
 
                 return ResponseEntity.ok(watchListToEdit);
             }
+
         } catch (Exception exception) {
             System.out.println("Error updating WatchList in database: " + exception.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+
+
 }
