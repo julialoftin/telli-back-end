@@ -3,6 +3,7 @@ package org.launchcode.capstonebackend.controllers;
 import jakarta.validation.Valid;
 import org.launchcode.capstonebackend.models.WatchList;
 import org.launchcode.capstonebackend.models.data.WatchListRepository;
+import org.launchcode.capstonebackend.models.dto.EditWatchListDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -35,7 +37,6 @@ public class WatchListController {
 
     @GetMapping("/get-watchlists")
     public ResponseEntity<List<WatchList>> getAllWatchLists() {
-
         List<WatchList> watchLists = (List<WatchList>) watchListRepository.findAll();
 
         if (watchLists.isEmpty()) {
@@ -45,4 +46,22 @@ public class WatchListController {
         }
     }
 
+    @PutMapping("/edit-watchlist/{watchListId}")
+    public ResponseEntity<WatchList> editWatchListDetails(@PathVariable int watchListId,
+                                                          @RequestBody EditWatchListDTO editWatchListDTO) {
+        Optional<WatchList> optionalWatchList = watchListRepository.findById(watchListId);
+
+        if (optionalWatchList.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        } else {
+            WatchList watchListToEdit = optionalWatchList.get();
+
+            watchListToEdit.setName(editWatchListDTO.getNewName());
+            watchListToEdit.setDescription(editWatchListDTO.getNewDescription());
+            watchListRepository.save(watchListToEdit);
+
+            return ResponseEntity.ok(watchListToEdit);
+
+        }
+    }
 }
