@@ -48,20 +48,26 @@ public class WatchListController {
 
     @PutMapping("/edit-watchlist/{watchListId}")
     public ResponseEntity<WatchList> editWatchListDetails(@PathVariable int watchListId,
-                                                          @RequestBody EditWatchListDTO editWatchListDTO) {
+                                                          @RequestBody @Valid EditWatchListDTO editWatchListDTO,
+                                                          Errors errors) {
+        if (errors.hasErrors()) {
+            return ResponseEntity.badRequest().build();
+        }
         Optional<WatchList> optionalWatchList = watchListRepository.findById(watchListId);
+        try {
+            if (optionalWatchList.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            } else {
+                WatchList watchListToEdit = optionalWatchList.get();
+                watchListToEdit.setName(editWatchListDTO.getNewName());
+                watchListToEdit.setDescription(editWatchListDTO.getNewDescription());
+                watchListRepository.save(watchListToEdit);
 
-        if (optionalWatchList.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        } else {
-            WatchList watchListToEdit = optionalWatchList.get();
-
-            watchListToEdit.setName(editWatchListDTO.getNewName());
-            watchListToEdit.setDescription(editWatchListDTO.getNewDescription());
-            watchListRepository.save(watchListToEdit);
-
-            return ResponseEntity.ok(watchListToEdit);
-
+                return ResponseEntity.ok(watchListToEdit);
+            }
+        } catch (Exception exception) {
+            System.out.println("Error updating WatchList in database: " + exception.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }
