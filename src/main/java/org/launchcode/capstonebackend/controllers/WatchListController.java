@@ -75,6 +75,22 @@ public class WatchListController {
         }
     }
 
+    @DeleteMapping("/delete-watchlist/{watchListId}")
+    public ResponseEntity<WatchList> deleteWatchList(@PathVariable int watchListId) {
 
+        Optional<WatchList> optionalWatchList = watchListRepository.findById(watchListId);
+
+        try {
+            if (optionalWatchList.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            } else {
+                watchListRepository.delete(optionalWatchList.get());
+                return ResponseEntity.ok().build();
+            }
+        } catch (Exception exception) {
+            System.out.println("Error deleting WatchList from database: " + exception.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
 }
