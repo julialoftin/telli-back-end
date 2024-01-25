@@ -1,13 +1,10 @@
 package org.launchcode.capstonebackend.controllers;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin
-@RequestBody("/api/watchlist-media-item")
+@RequestMapping("/api/watchlist-item")
 public class WatchListMediaItemController {
 
 
