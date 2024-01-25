@@ -1,13 +1,20 @@
 package org.launchcode.capstonebackend.models;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
+import java.util.List;
 import java.util.Objects;
 
-public class WatchListMediaItem extends AbstractEntity {
+@Entity
+public class MediaItem extends AbstractEntity {
 
     private int tmdbId;
     private String mediaType;
 
-    public WatchListMediaItem(int tmdbId, String mediaType) {
+    @ManyToMany(mappedBy = "mediaItems")
+    private List<WatchList> watchLists;
+
+    public MediaItem(int tmdbId, String mediaType) {
         this.tmdbId = tmdbId;
         this.mediaType = mediaType;
     }
@@ -28,12 +35,20 @@ public class WatchListMediaItem extends AbstractEntity {
         this.mediaType = mediaType;
     }
 
+    public List<WatchList> getWatchLists() {
+        return watchLists;
+    }
+
+    public void setWatchLists(List<WatchList> watchLists) {
+        this.watchLists = watchLists;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        WatchListMediaItem that = (WatchListMediaItem) o;
+        MediaItem that = (MediaItem) o;
         return tmdbId == that.tmdbId;
     }
 

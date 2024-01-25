@@ -12,8 +12,6 @@ public class EditWatchListDTO {
     @Size(min = 3, max = 200, message = "Watch List description must be between 3 and 200 characters.")
     private String newDescription;
 
-    EditWatchListDTO() {}
-
     public String getNewName() {
         return newName;
     }
