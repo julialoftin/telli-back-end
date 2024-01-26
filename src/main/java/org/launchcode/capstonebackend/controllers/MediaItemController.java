@@ -6,6 +6,7 @@ import org.launchcode.capstonebackend.models.data.MediaItemRepository;
 import org.launchcode.capstonebackend.models.data.WatchListRepository;
 import org.launchcode.capstonebackend.models.dto.MediaItemDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
@@ -38,19 +39,25 @@ public class MediaItemController {
         }
 
         Optional<WatchList> optionalWatchList = watchListRepository.findById(watchListId);
-        if (optionalWatchList.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        } else {
-            MediaItem mediaItem = convertMediaItemDTOToEntity(mediaItemDTO);
-            mediaItemRepository.save(mediaItem);
 
+        try {
+            if (optionalWatchList.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            MediaItem mediaItem = convertMediaItemDTOToEntity(mediaItemDTO);
             WatchList watchList = optionalWatchList.get();
+
             watchList.addMediaItemToList(mediaItem);
             watchListRepository.save(watchList);
-
+            if (!mediaItemRepository.existsById(mediaItem.getTmdbId())) {
+                mediaItemRepository.save(mediaItem);
+            }
             return ResponseEntity.ok(watchList.getMediaItems());
+        } catch (Exception exception) {
+            System.out.println("Error adding media item to WatchList in database: " + exception.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-
     }
+
 
 }

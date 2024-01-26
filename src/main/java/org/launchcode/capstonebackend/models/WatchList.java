@@ -15,7 +15,7 @@ public class WatchList extends AbstractEntity {
     @JoinTable(
             name = "watchlist_mediaitem",
             joinColumns = @JoinColumn(name = "watchlist_id"),
-            inverseJoinColumns = @JoinColumn(name = "mediaitem_id")
+            inverseJoinColumns = @JoinColumn(name = "tmdb_id")
     )
     private List<MediaItem> mediaItems = new ArrayList<>();
 

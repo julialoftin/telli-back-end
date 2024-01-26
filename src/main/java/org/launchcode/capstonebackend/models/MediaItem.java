@@ -1,18 +1,25 @@
 package org.launchcode.capstonebackend.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
-public class MediaItem extends AbstractEntity {
+public class MediaItem {
 
+    @Id
     private int tmdbId;
     private String mediaType;
 
-    @ManyToMany(mappedBy = "mediaItems")
+    @JsonIgnore
+    @ManyToMany(mappedBy = "mediaItems", cascade = CascadeType.ALL)
     private List<WatchList> watchLists;
+
+    public MediaItem() {}
 
     public MediaItem(int tmdbId, String mediaType) {
         this.tmdbId = tmdbId;
@@ -57,3 +64,5 @@ public class MediaItem extends AbstractEntity {
         return Objects.hash(super.hashCode(), tmdbId);
     }
 }
+
+
