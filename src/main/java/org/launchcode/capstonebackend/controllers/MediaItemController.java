@@ -104,6 +104,10 @@ public class MediaItemController {
                 watchListRepository.save(watchList);
             }
 
+            if (watchListRepository.countByMediaItemsContaining(mediaItemToDelete) == 0) {
+                mediaItemRepository.delete(mediaItemToDelete);
+            }
+
             return ResponseEntity.ok().body(watchList.getMediaItems());
         } catch (Exception exception) {
             System.out.println("Error deleting media item from WatchList: " + exception.getMessage());
