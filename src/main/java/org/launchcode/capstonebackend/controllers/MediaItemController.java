@@ -102,10 +102,10 @@ public class MediaItemController {
                 watchList.getMediaItems().remove(mediaItemToDelete);
 
                 watchListRepository.save(watchList);
-            }
 
-            if (watchListRepository.countByMediaItemsContaining(mediaItemToDelete) == 0) {
-                mediaItemRepository.delete(mediaItemToDelete);
+                if (watchListRepository.countByMediaItemsContaining(mediaItemToDelete) == 0) {
+                    mediaItemRepository.delete(mediaItemToDelete);
+                }
             }
 
             return ResponseEntity.ok().body(watchList.getMediaItems());
