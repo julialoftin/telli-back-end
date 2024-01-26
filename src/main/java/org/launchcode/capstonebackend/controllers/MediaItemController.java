@@ -1,5 +1,6 @@
 package org.launchcode.capstonebackend.controllers;
 
+import jakarta.validation.Valid;
 import org.launchcode.capstonebackend.models.MediaItem;
 import org.launchcode.capstonebackend.models.WatchList;
 import org.launchcode.capstonebackend.models.data.MediaItemRepository;
@@ -32,7 +33,7 @@ public class MediaItemController {
 
     @PostMapping("/add-to-watchlist/{watchListId}")
     public ResponseEntity<List<MediaItem>> addMediaItemToWatchList(@PathVariable int watchListId,
-                                                                   @RequestBody MediaItemDTO mediaItemDTO,
+                                                                   @RequestBody @Valid MediaItemDTO mediaItemDTO,
                                                                    Errors errors) {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().build();
@@ -82,7 +83,7 @@ public class MediaItemController {
 
     @DeleteMapping("/delete-item-from-watchlist/{watchListId}")
     public ResponseEntity<List<MediaItem>> deleteItemInWatchList(@PathVariable int watchListId,
-                                                                 @RequestBody MediaItemDTO mediaItemDTO,
+                                                                 @RequestBody @Valid MediaItemDTO mediaItemDTO,
                                                                  Errors errors) {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().build();
