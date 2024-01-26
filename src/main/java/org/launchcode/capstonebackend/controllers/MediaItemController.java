@@ -80,4 +80,43 @@ public class MediaItemController {
 
     }
 
+    private void deleteMediaItem(int mediaItemTmdbId) {
+        MediaItem mediaItem = mediaItemRepository.findById(mediaItemTmdbId).orElse(null);
+        if (mediaItem != null) {
+
+        }
+    }
+
+    @DeleteMapping("/delete-item-from-watchlist/{watchListId}")
+    public ResponseEntity<List<MediaItem>> deleteItemInWatchList(@PathVariable int watchListId,
+                                                                 @RequestBody MediaItemDTO mediaItemDTO,
+                                                                 Errors errors) {
+        if (errors.hasErrors()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Optional<WatchList> optionalWatchList = watchListRepository.findById(watchListId);
+
+        try {
+            if (optionalWatchList.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            WatchList watchList = optionalWatchList.get();
+            MediaItem mediaItemToDelete = mediaItemRepository.findById(mediaItemDTO.getTmdbId()).orElse(null);
+
+            if (mediaItemToDelete != null) {
+                watchList.getMediaItems().remove(mediaItemToDelete);
+
+                watchListRepository.save(watchList);
+            }
+
+            return ResponseEntity.ok().body(watchList.getMediaItems());
+        } catch (Exception exception) {
+            System.out.println("Error deleting media item from WatchList: " + exception.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+    }
+
 }
