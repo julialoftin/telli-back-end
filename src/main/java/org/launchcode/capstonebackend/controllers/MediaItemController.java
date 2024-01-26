@@ -80,13 +80,6 @@ public class MediaItemController {
 
     }
 
-    private void deleteMediaItem(int mediaItemTmdbId) {
-        MediaItem mediaItem = mediaItemRepository.findById(mediaItemTmdbId).orElse(null);
-        if (mediaItem != null) {
-
-        }
-    }
-
     @DeleteMapping("/delete-item-from-watchlist/{watchListId}")
     public ResponseEntity<List<MediaItem>> deleteItemInWatchList(@PathVariable int watchListId,
                                                                  @RequestBody MediaItemDTO mediaItemDTO,
