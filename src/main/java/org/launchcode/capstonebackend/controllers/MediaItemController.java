@@ -30,7 +30,7 @@ public class MediaItemController {
         return mediaItem;
     }
 
-    @PostMapping("/add-media-item-to-watchlist/{watchListId}")
+    @PostMapping("/add-to-watchlist/{watchListId}")
     public ResponseEntity<List<MediaItem>> addMediaItemToWatchList(@PathVariable int watchListId,
                                                                    @RequestBody MediaItemDTO mediaItemDTO,
                                                                    Errors errors) {
@@ -59,5 +59,25 @@ public class MediaItemController {
         }
     }
 
+    @GetMapping("/get-items-in-watchlist/{watchListId}")
+    public ResponseEntity<List<MediaItem>> getAllItemsInWatchList(@PathVariable int watchListId) {
+
+        Optional<WatchList> optionalWatchList = watchListRepository.findById(watchListId);
+
+        try {
+            if (optionalWatchList.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            WatchList watchList = optionalWatchList.get();
+            if (watchList.getMediaItems().isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok().body(watchList.getMediaItems());
+        } catch (Exception exception) {
+            System.out.println("Error retrieving media items from WatchList: " + exception.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+    }
 
 }
