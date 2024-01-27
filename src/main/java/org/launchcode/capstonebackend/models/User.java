@@ -2,6 +2,7 @@ package org.launchcode.capstonebackend.models;
 
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotNull;
+import org.launchcode.capstonebackend.models.AbstractEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Entity
