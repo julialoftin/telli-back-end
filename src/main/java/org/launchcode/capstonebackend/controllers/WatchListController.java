@@ -37,6 +37,7 @@ public class WatchListController {
 
     @GetMapping("/get-watchlists")
     public ResponseEntity<List<WatchList>> getAllWatchLists() {
+
         List<WatchList> watchLists = (List<WatchList>) watchListRepository.findAll();
 
         if (watchLists.isEmpty()) {
