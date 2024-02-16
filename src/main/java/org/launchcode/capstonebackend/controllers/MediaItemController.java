@@ -140,7 +140,6 @@ public class MediaItemController {
             System.out.println("Error deleting media item from WatchList: " + exception.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-
     }
 
 }

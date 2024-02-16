@@ -1,12 +1,10 @@
 package org.launchcode.capstonebackend.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,6 +21,10 @@ public class MediaItem {
     @JsonIgnore
     @ManyToMany(mappedBy = "mediaItems", cascade = CascadeType.ALL)
     private List<WatchList> watchLists;
+
+    @JsonIgnore
+    @ManyToMany
+    private final List<Tag> tags = new ArrayList<>();
 
     public MediaItem() {}
 
@@ -53,6 +55,14 @@ public class MediaItem {
 
     public void setWatchLists(List<WatchList> watchLists) {
         this.watchLists = watchLists;
+    }
+
+    public List<Tag> getTags() {
+        return tags;
+    }
+
+    public void addTag(Tag tag) {
+        tags.add(tag);
     }
 
     @Override
