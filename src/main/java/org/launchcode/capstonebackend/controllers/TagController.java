@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin
 @RequestMapping("/api/tag")
 public class TagController {
 
@@ -110,6 +109,4 @@ public class TagController {
         }
         return ResponseEntity.ok().body(tagRepository.findAllTags());
     }
-
-
 }

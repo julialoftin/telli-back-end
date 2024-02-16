@@ -17,7 +17,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/watchlist")
-@CrossOrigin
 public class WatchListController {
 
     @Autowired
@@ -60,6 +59,20 @@ public class WatchListController {
         }
         return ResponseEntity.ok().body(watchLists);
 
+    }
+
+    @GetMapping("get-by-id/{watchListId}")
+    public ResponseEntity<WatchList> getWatchListById(@PathVariable int watchListId, HttpSession session) {
+        User user = authenticationController.getUserFromSession(session);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Optional<WatchList> optionalWatchList = watchListRepository.findById(user.getId());
+        if (optionalWatchList.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().body(optionalWatchList.get());
     }
 
     @PutMapping("/edit-watchlist/{watchListId}")
