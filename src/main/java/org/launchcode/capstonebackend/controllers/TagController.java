@@ -103,11 +103,13 @@ public class TagController {
         }
     }
 
-//    @GetMapping("/get-all")
-//    public ResponseEntity<List<Tag>> getAllTags() {
-//        Optional<Tag> optionalTags =
-//    }
+    @GetMapping("/get-all")
+    public ResponseEntity<List<Tag>> getAllTags() {
+        if (tagRepository.findAllTags().isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().body(tagRepository.findAllTags());
+    }
 
-//    @GetMapping("/get-all-by-media-item")
 
 }

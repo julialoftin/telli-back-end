@@ -2,6 +2,7 @@ package org.launchcode.capstonebackend.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ public class MediaItem {
 
     @Id
     @NotNull
+    @Valid
     private int tmdbId;
 
     @NotNull
