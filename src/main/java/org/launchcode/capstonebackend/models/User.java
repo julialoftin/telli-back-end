@@ -1,8 +1,12 @@
 package org.launchcode.capstonebackend.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.util.List;
 
 @Entity
 public class User extends AbstractEntity {
@@ -14,6 +18,10 @@ public class User extends AbstractEntity {
 
     @NotNull
     private String pwHash;
+
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    private List<WatchList> watchLists;
 
     public User() {}
 

@@ -1,6 +1,8 @@
 package org.launchcode.capstonebackend.controllers;
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import org.launchcode.capstonebackend.models.User;
 import org.launchcode.capstonebackend.models.WatchList;
 import org.launchcode.capstonebackend.models.data.WatchListRepository;
 import org.launchcode.capstonebackend.models.dto.EditWatchListDTO;
@@ -14,19 +16,28 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/watchlist")
 @CrossOrigin
 public class WatchListController {
 
     @Autowired
     WatchListRepository watchListRepository;
 
-    @PostMapping("/create-watchlist")
-    public ResponseEntity<WatchList> processCreateWatchListForm(@RequestBody @Valid WatchList newWatchList, Errors errors) {
+    @Autowired
+    AuthenticationController authenticationController;
+
+    @PostMapping("/create")
+    public ResponseEntity<WatchList> processCreateWatchListForm(@RequestBody @Valid WatchList newWatchList,
+                                                                HttpSession session, Errors errors) {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().build();
         }
+        User user = authenticationController.getUserFromSession(session);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         try {
+            newWatchList.setUser(user);
             WatchList savedWatchList = watchListRepository.save(newWatchList);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedWatchList);
         } catch (Exception exception) {
@@ -35,24 +46,33 @@ public class WatchListController {
         }
     }
 
-    @GetMapping("/get-watchlists")
-    public ResponseEntity<List<WatchList>> getAllWatchLists() {
+    @GetMapping("/get-all")
+    public ResponseEntity<List<WatchList>> getAllWatchLists(HttpSession session) {
+        User user = authenticationController.getUserFromSession(session);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
-        List<WatchList> watchLists = (List<WatchList>) watchListRepository.findAll();
+        List<WatchList> watchLists = watchListRepository.findByUser(user);
 
         if (watchLists.isEmpty()) {
             return ResponseEntity.notFound().build();
-        } else {
-            return ResponseEntity.ok(watchLists);
         }
+        return ResponseEntity.ok().body(watchLists);
+
     }
 
     @PutMapping("/edit-watchlist/{watchListId}")
     public ResponseEntity<WatchList> editWatchListDetails(@PathVariable int watchListId,
                                                           @RequestBody @Valid EditWatchListDTO editWatchListDTO,
-                                                          Errors errors) {
+                                                          HttpSession session, Errors errors) {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().build();
+        }
+
+        User user = authenticationController.getUserFromSession(session);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         Optional<WatchList> optionalWatchList = watchListRepository.findById(watchListId);
@@ -63,6 +83,9 @@ public class WatchListController {
                 return ResponseEntity.notFound().build();
             } else {
                 WatchList watchListToEdit = optionalWatchList.get();
+                if (!watchListToEdit.getUser().equals(user)) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                }
                 watchListToEdit.setName(editWatchListDTO.getNewName());
                 watchListToEdit.setDescription(editWatchListDTO.getNewDescription());
                 watchListRepository.save(watchListToEdit);
@@ -77,7 +100,12 @@ public class WatchListController {
     }
 
     @DeleteMapping("/delete-watchlist/{watchListId}")
-    public ResponseEntity<WatchList> deleteWatchList(@PathVariable int watchListId) {
+    public ResponseEntity<WatchList> deleteWatchList(@PathVariable int watchListId, HttpSession session) {
+
+        User user = authenticationController.getUserFromSession(session);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
         Optional<WatchList> optionalWatchList = watchListRepository.findById(watchListId);
 
@@ -85,7 +113,11 @@ public class WatchListController {
             if (optionalWatchList.isEmpty()) {
                 return ResponseEntity.notFound().build();
             } else {
-                watchListRepository.delete(optionalWatchList.get());
+                WatchList watchList = optionalWatchList.get();
+                if (!watchList.getUser().equals(user)) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                }
+                watchListRepository.delete(watchList);
                 return ResponseEntity.ok().build();
             }
         } catch (Exception exception) {

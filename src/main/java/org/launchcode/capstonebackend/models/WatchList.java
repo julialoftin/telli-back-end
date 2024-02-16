@@ -19,6 +19,10 @@ public class WatchList extends AbstractEntity {
     )
     private List<MediaItem> mediaItems = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     public WatchList(String name, String description) {
         this.name = name;
         this.description = description;
@@ -52,6 +56,14 @@ public class WatchList extends AbstractEntity {
 
     public void addMediaItemToList(MediaItem mediaItem) {
         mediaItems.add(mediaItem);
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override
