@@ -1,5 +1,6 @@
 package org.launchcode.capstonebackend.controllers;
 
+import jakarta.validation.Valid;
 import org.launchcode.capstonebackend.models.MediaItem;
 import org.launchcode.capstonebackend.models.WatchList;
 import org.launchcode.capstonebackend.models.data.MediaItemRepository;
@@ -30,9 +31,9 @@ public class MediaItemController {
         return mediaItem;
     }
 
-    @PostMapping("/add-media-item-to-watchlist/{watchListId}")
+    @PostMapping("/add-to-watchlist/{watchListId}")
     public ResponseEntity<List<MediaItem>> addMediaItemToWatchList(@PathVariable int watchListId,
-                                                                   @RequestBody MediaItemDTO mediaItemDTO,
+                                                                   @RequestBody @Valid MediaItemDTO mediaItemDTO,
                                                                    Errors errors) {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().build();
@@ -59,5 +60,61 @@ public class MediaItemController {
         }
     }
 
+    @GetMapping("/get-items-in-watchlist/{watchListId}")
+    public ResponseEntity<List<MediaItem>> getAllItemsInWatchList(@PathVariable int watchListId) {
+
+        Optional<WatchList> optionalWatchList = watchListRepository.findById(watchListId);
+
+        try {
+            if (optionalWatchList.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            WatchList watchList = optionalWatchList.get();
+            if (watchList.getMediaItems().isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok().body(watchList.getMediaItems());
+        } catch (Exception exception) {
+            System.out.println("Error retrieving media items from WatchList: " + exception.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+    }
+
+    @DeleteMapping("/delete-item-from-watchlist/{watchListId}")
+    public ResponseEntity<List<MediaItem>> deleteItemInWatchList(@PathVariable int watchListId,
+                                                                 @RequestBody @Valid MediaItemDTO mediaItemDTO,
+                                                                 Errors errors) {
+        if (errors.hasErrors()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Optional<WatchList> optionalWatchList = watchListRepository.findById(watchListId);
+
+        try {
+            if (optionalWatchList.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            WatchList watchList = optionalWatchList.get();
+            MediaItem mediaItemToDelete = mediaItemRepository.findById(mediaItemDTO.getTmdbId()).orElse(null);
+
+            if (mediaItemToDelete != null) {
+                watchList.getMediaItems().remove(mediaItemToDelete);
+
+                watchListRepository.save(watchList);
+
+                if (watchListRepository.countByMediaItemsContaining(mediaItemToDelete) == 0) {
+                    mediaItemRepository.delete(mediaItemToDelete);
+                }
+            }
+
+            return ResponseEntity.ok().body(watchList.getMediaItems());
+        } catch (Exception exception) {
+            System.out.println("Error deleting media item from WatchList: " + exception.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+    }
 
 }

@@ -104,4 +104,5 @@ public class AuthenticationController {
         request.getSession().invalidate();
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Logout successful."));
     }
+
 }
