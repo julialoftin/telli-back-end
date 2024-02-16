@@ -73,7 +73,12 @@ public class MediaItemController {
     }
 
     @GetMapping("/get-items-in-watchlist/{watchListId}")
-    public ResponseEntity<List<MediaItem>> getAllItemsInWatchList(@PathVariable int watchListId) {
+    public ResponseEntity<List<MediaItem>> getAllItemsInWatchList(@PathVariable int watchListId, HttpSession session) {
+
+        User user = authenticationController.getUserFromSession(session);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
         Optional<WatchList> optionalWatchList = watchListRepository.findById(watchListId);
 
@@ -82,6 +87,7 @@ public class MediaItemController {
                 return ResponseEntity.notFound().build();
             }
             WatchList watchList = optionalWatchList.get();
+
             if (watchList.getMediaItems().isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
@@ -96,9 +102,14 @@ public class MediaItemController {
     @DeleteMapping("/delete-item-from-watchlist/{watchListId}")
     public ResponseEntity<List<MediaItem>> deleteItemInWatchList(@PathVariable int watchListId,
                                                                  @RequestBody @Valid MediaItemDTO mediaItemDTO,
-                                                                 Errors errors) {
+                                                                 HttpSession session, Errors errors) {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().build();
+        }
+
+        User user = authenticationController.getUserFromSession(session);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         Optional<WatchList> optionalWatchList = watchListRepository.findById(watchListId);
@@ -109,6 +120,9 @@ public class MediaItemController {
             }
 
             WatchList watchList = optionalWatchList.get();
+            if (!watchList.getUser().equals(user)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
             MediaItem mediaItemToDelete = mediaItemRepository.findById(mediaItemDTO.getTmdbId()).orElse(null);
 
             if (mediaItemToDelete != null) {
