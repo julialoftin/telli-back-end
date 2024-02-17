@@ -109,4 +109,19 @@ public class TagController {
         }
         return ResponseEntity.ok().body(tagRepository.findAllTags());
     }
+
+    @GetMapping("get-tags-by-media-item/{tmdbId}")
+    public ResponseEntity<List<Tag>> getTagsByMediaItem(@PathVariable int tmdbId) {
+        try {
+            if (tagRepository.findByMediaItems_tmdbId(tmdbId).isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            }
+
+            return ResponseEntity.ok().body(tagRepository.findByMediaItems_tmdbId(tmdbId));
+        } catch (Exception exception) {
+            System.out.println("Error saving retrieving tags: " + exception.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }
