@@ -124,4 +124,16 @@ public class TagController {
         }
     }
 
+    @GetMapping("get-all-media-items-by-tag/{tagId}")
+    public ResponseEntity<List<MediaItem>> getAllMediaItemsByTag(@PathVariable int tagId) {
+        try {
+            if (tagRepository.findAllMediaItemsByTagId(tagId).isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            }
+            return ResponseEntity.ok().body(tagRepository.findAllMediaItemsByTagId(tagId));
+        } catch (Exception exception) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }

@@ -1,5 +1,6 @@
 package org.launchcode.capstonebackend.models.data;
 
+import org.launchcode.capstonebackend.models.MediaItem;
 import org.launchcode.capstonebackend.models.Tag;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -18,5 +19,8 @@ public interface TagRepository extends CrudRepository<Tag, Integer> {
     List<Tag> findAllTags();
 
     List<Tag> findByMediaItems_tmdbId (int tmdbId);
+
+    @Query("SELECT t.mediaItems FROM Tag t WHERE t.id = :tagId")
+    List<MediaItem> findAllMediaItemsByTagId(@Param("tagId") int tagId);
 
 }
