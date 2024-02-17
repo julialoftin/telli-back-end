@@ -1,7 +1,9 @@
 package org.launchcode.capstonebackend.controllers;
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.launchcode.capstonebackend.models.MediaItem;
+import org.launchcode.capstonebackend.models.User;
 import org.launchcode.capstonebackend.models.WatchList;
 import org.launchcode.capstonebackend.models.data.MediaItemRepository;
 import org.launchcode.capstonebackend.models.data.WatchListRepository;
@@ -16,7 +18,6 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin
 @RequestMapping("/api/media-item")
 public class MediaItemController {
 
@@ -26,17 +27,24 @@ public class MediaItemController {
     @Autowired
     WatchListRepository watchListRepository;
 
+    @Autowired
+    AuthenticationController authenticationController;
+
     private MediaItem convertMediaItemDTOToEntity(MediaItemDTO mediaItemDTO) {
-        MediaItem mediaItem = new MediaItem(mediaItemDTO.getTmdbId(), mediaItemDTO.getMediaType());
-        return mediaItem;
+        Optional<MediaItem> existingMediaItem = mediaItemRepository.findById(mediaItemDTO.getTmdbId());
+        return existingMediaItem.orElseGet(() -> new MediaItem(mediaItemDTO.getTmdbId(), mediaItemDTO.getMediaType()));
     }
 
     @PostMapping("/add-to-watchlist/{watchListId}")
     public ResponseEntity<List<MediaItem>> addMediaItemToWatchList(@PathVariable int watchListId,
                                                                    @RequestBody @Valid MediaItemDTO mediaItemDTO,
-                                                                   Errors errors) {
+                                                                   HttpSession session, Errors errors) {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().build();
+        }
+        User user = authenticationController.getUserFromSession(session);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         Optional<WatchList> optionalWatchList = watchListRepository.findById(watchListId);
@@ -45,8 +53,11 @@ public class MediaItemController {
             if (optionalWatchList.isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
-            MediaItem mediaItem = convertMediaItemDTOToEntity(mediaItemDTO);
             WatchList watchList = optionalWatchList.get();
+            if (!watchList.getUser().equals(user)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            MediaItem mediaItem = convertMediaItemDTOToEntity(mediaItemDTO);
 
             watchList.addMediaItemToList(mediaItem);
             watchListRepository.save(watchList);
@@ -61,7 +72,12 @@ public class MediaItemController {
     }
 
     @GetMapping("/get-items-in-watchlist/{watchListId}")
-    public ResponseEntity<List<MediaItem>> getAllItemsInWatchList(@PathVariable int watchListId) {
+    public ResponseEntity<List<MediaItem>> getAllItemsInWatchList(@PathVariable int watchListId, HttpSession session) {
+
+        User user = authenticationController.getUserFromSession(session);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
         Optional<WatchList> optionalWatchList = watchListRepository.findById(watchListId);
 
@@ -70,6 +86,7 @@ public class MediaItemController {
                 return ResponseEntity.notFound().build();
             }
             WatchList watchList = optionalWatchList.get();
+
             if (watchList.getMediaItems().isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
@@ -84,9 +101,14 @@ public class MediaItemController {
     @DeleteMapping("/delete-item-from-watchlist/{watchListId}")
     public ResponseEntity<List<MediaItem>> deleteItemInWatchList(@PathVariable int watchListId,
                                                                  @RequestBody @Valid MediaItemDTO mediaItemDTO,
-                                                                 Errors errors) {
+                                                                 HttpSession session, Errors errors) {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().build();
+        }
+
+        User user = authenticationController.getUserFromSession(session);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         Optional<WatchList> optionalWatchList = watchListRepository.findById(watchListId);
@@ -97,6 +119,9 @@ public class MediaItemController {
             }
 
             WatchList watchList = optionalWatchList.get();
+            if (!watchList.getUser().equals(user)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
             MediaItem mediaItemToDelete = mediaItemRepository.findById(mediaItemDTO.getTmdbId()).orElse(null);
 
             if (mediaItemToDelete != null) {
@@ -114,7 +139,6 @@ public class MediaItemController {
             System.out.println("Error deleting media item from WatchList: " + exception.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-
     }
 
 }

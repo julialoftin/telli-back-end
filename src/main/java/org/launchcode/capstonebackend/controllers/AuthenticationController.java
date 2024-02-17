@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin
 @RequestMapping("/api/authentication")
 public class AuthenticationController {
 
@@ -92,7 +91,8 @@ public class AuthenticationController {
 
     @GetMapping("/check-login")
     public ResponseEntity<Map<String, Boolean>> checkLogin(HttpServletRequest request) {
-        boolean isLoggedIn = getUserFromSession(request.getSession()) != null;
+        User user = getUserFromSession(request.getSession());
+        boolean isLoggedIn = user != null && userRepository.existsById(user.getId());
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("isLoggedIn", isLoggedIn));
     }
 
