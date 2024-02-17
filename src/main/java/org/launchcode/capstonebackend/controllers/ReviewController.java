@@ -75,12 +75,8 @@ public class ReviewController {
     }
 
     @GetMapping("get-reviews-by-media-item/{tmdbId}")
-    public ResponseEntity<List<Review>> getAllReviewsByMediaItem(@PathVariable int tmdbId, HttpSession session) {
+    public ResponseEntity<List<Review>> getAllReviewsByMediaItem(@PathVariable int tmdbId) {
         try {
-            User user = authenticationController.getUserFromSession(session);
-            if (user == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
 
             if (reviewRepository.findByMediaItem_tmdbId(tmdbId).isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
