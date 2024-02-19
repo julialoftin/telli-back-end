@@ -1,5 +1,6 @@
 package org.launchcode.capstonebackend.models;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -14,7 +15,8 @@ public class Review extends AbstractEntity {
     private String title;
 
     @NotNull
-    @Size(min = 50, max = 1000, message = "Review must be between 50 and 1000 characters.")
+    @Size(min = 50, max = 5000, message = "Review must be between 50 and 1000 characters.")
+    @Column(length = 5000)
     private String reviewBody;
 
     @ManyToOne
