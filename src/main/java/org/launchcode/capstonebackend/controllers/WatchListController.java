@@ -68,7 +68,7 @@ public class WatchListController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        Optional<WatchList> optionalWatchList = watchListRepository.findById(user.getId());
+        Optional<WatchList> optionalWatchList = watchListRepository.findById(watchListId);
         if (optionalWatchList.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
