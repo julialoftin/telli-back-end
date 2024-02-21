@@ -23,6 +23,10 @@ public class User extends AbstractEntity {
     @JsonIgnore
     private List<WatchList> watchLists;
 
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    private List<Review> reviews;
+
     public User() {}
 
     public User(String username, String password) {

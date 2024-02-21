@@ -28,6 +28,10 @@ public class MediaItem {
     @ManyToMany
     private final List<Tag> tags = new ArrayList<>();
 
+    @OneToMany(mappedBy = "mediaItem")
+    @JsonIgnore
+    private List<Review> reviews;
+
     public MediaItem() {}
 
     public MediaItem(int tmdbId, String mediaType) {
