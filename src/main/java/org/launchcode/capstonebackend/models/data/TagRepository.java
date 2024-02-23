@@ -18,7 +18,7 @@ public interface TagRepository extends CrudRepository<Tag, Integer> {
     @Query("SELECT t FROM Tag t")
     List<Tag> findAllTags();
 
-    List<Tag> findByMediaItems_tmdbId (int tmdbId);
+    List<Tag> findByMediaItems_tmdbIdAndMediaItems_mediaType (int tmdbId, String mediaType);
 
     @Query("SELECT t.mediaItems FROM Tag t WHERE t.id = :tagId")
     List<MediaItem> findAllMediaItemsByTagId(@Param("tagId") int tagId);
