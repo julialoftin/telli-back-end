@@ -20,7 +20,7 @@ public class Review extends AbstractEntity {
     private String reviewBody;
 
     @ManyToOne
-    @JoinColumn(name = "tmdb_Id")
+    @JoinColumn(name = "mediaItem_id")
     private MediaItem mediaItem;
 
     @ManyToOne
