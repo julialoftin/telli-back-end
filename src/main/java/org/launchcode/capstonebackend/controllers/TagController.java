@@ -115,16 +115,14 @@ public class TagController {
     }
 
     @GetMapping("/get-tags-by-media-item")
-    public ResponseEntity<List<Tag>> getTagsByMediaItem(@RequestBody MediaItemDTO mediaItemDTO, Errors errors) {
+    public ResponseEntity<List<Tag>> getTagsByMediaItem(@RequestParam int tmdbId,
+                                                        @RequestParam String mediaType) {
         try {
-            if (errors.hasErrors()) {
-                return ResponseEntity.badRequest().build();
-            }
-            if (tagRepository.findByMediaItems_tmdbIdAndMediaItems_mediaType(mediaItemDTO.getTmdbId(), mediaItemDTO.getMediaType()).isEmpty()) {
+            if (tagRepository.findByMediaItems_tmdbIdAndMediaItems_mediaType(tmdbId, mediaType).isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
             }
 
-            return ResponseEntity.ok().body(tagRepository.findByMediaItems_tmdbIdAndMediaItems_mediaType(mediaItemDTO.getTmdbId(), mediaItemDTO.getMediaType()));
+            return ResponseEntity.ok().body(tagRepository.findByMediaItems_tmdbIdAndMediaItems_mediaType(tmdbId, mediaType));
         } catch (Exception exception) {
             System.out.println("Error saving retrieving tags: " + exception.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,7 +52,7 @@ public class ReviewController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Review> addReviewToMediaItem(@RequestBody @Valid ReviewMediaItemCombinedDTO reviewMediaItemCombinedDTO,
+    public ResponseEntity<ReviewDTO> addReviewToMediaItem(@RequestBody @Valid ReviewMediaItemCombinedDTO reviewMediaItemCombinedDTO,
                                                        Errors errors, HttpSession session) {
         try {
             if (errors.hasErrors()) {
@@ -79,8 +80,10 @@ public class ReviewController {
             review.setUser(user);
             review.setMediaItem(mediaItem);
             reviewRepository.save(review);
+            
+            ReviewDTO reviewDTO = new ReviewDTO(review.getTitle(), review.getReviewBody());
 
-            return ResponseEntity.ok().body(review);
+            return ResponseEntity.ok().body(reviewDTO);
         } catch (Exception exception) {
             System.out.println("Error getting reviews: " + exception.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -88,25 +91,15 @@ public class ReviewController {
     }
 
     @GetMapping("get-reviews-by-media-item")
-    public ResponseEntity<List<Review>> getAllReviewsByMediaItem(@RequestBody MediaItemDTO mediaItemDTO, Errors errors) {
-//        try {
-//            if (reviewRepository.findByMediaItem_tmdbIdAndMediaItem_mediaType(tmdbId).isEmpty()) {
-//                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-//            }
-//            return ResponseEntity.ok().body(reviewRepository.findByMediaItem_tmdbIdAndMediaItem_mediaType(tmdbId));
-//        } catch (Exception exception) {
-//            System.out.println("Error getting reviews: " + exception.getMessage());
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//        }
+    public ResponseEntity<List<Review>> getAllReviewsByMediaItem(@RequestParam int tmdbId,
+                                                                    @RequestParam String mediaType) {
 
         try {
-            if (errors.hasErrors()) {
-                return ResponseEntity.badRequest().build();
-            }
-            if (reviewRepository.findByMediaItem_tmdbIdAndMediaItem_mediaType(mediaItemDTO.getTmdbId(), mediaItemDTO.getMediaType()).isEmpty()) {
+            if (reviewRepository.findByMediaItem_tmdbIdAndMediaItem_mediaType(tmdbId, mediaType).isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
             }
-            return ResponseEntity.ok().body(reviewRepository.findByMediaItem_tmdbIdAndMediaItem_mediaType(mediaItemDTO.getTmdbId(), mediaItemDTO.getMediaType()));
+            List<Review> reviews = reviewRepository.findByMediaItem_tmdbIdAndMediaItem_mediaType(tmdbId, mediaType);
+            return ResponseEntity.ok().body(reviews);
         } catch (Exception exception) {
             System.out.println("Error getting reviews: " + exception.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

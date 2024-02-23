@@ -10,6 +10,11 @@ public class ReviewDTO {
     @NotNull
     private String reviewBody;
 
+    public ReviewDTO(String title, String reviewBody) {
+        this.title = title;
+        this.reviewBody = reviewBody;
+    }
+
     public String getTitle() {
         return title;
     }
