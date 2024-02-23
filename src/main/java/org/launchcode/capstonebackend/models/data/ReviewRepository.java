@@ -13,6 +13,6 @@ public interface ReviewRepository extends CrudRepository<Review, Integer> {
 
     List<Review> findByUser (User user);
 
-    List<Review> findByMediaItem_tmdbId (int tmdbId);
+    List<Review> findByMediaItem_tmdbIdAndMediaItem_mediaType (int tmdbId, String mediaType);
 
 }
