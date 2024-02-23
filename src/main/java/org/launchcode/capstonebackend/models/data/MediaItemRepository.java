@@ -9,4 +9,7 @@ import java.util.List;
 
 @Repository
 public interface MediaItemRepository extends CrudRepository<MediaItem, Integer> {
+
+
+
 }

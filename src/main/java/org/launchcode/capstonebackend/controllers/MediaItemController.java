@@ -9,6 +9,8 @@ import org.launchcode.capstonebackend.models.data.MediaItemRepository;
 import org.launchcode.capstonebackend.models.data.WatchListRepository;
 import org.launchcode.capstonebackend.models.dto.MediaItemDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
@@ -58,7 +60,11 @@ public class MediaItemController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
             MediaItem mediaItem = convertMediaItemDTOToEntity(mediaItemDTO);
-
+            // Checks if watchlist already contains media item
+            List<MediaItem> mediaItems = watchListRepository.findAllMediaItemsByWatchListId(watchList.getId());
+            if (mediaItems.contains(mediaItem)) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            }
             watchList.addMediaItemToList(mediaItem);
             watchListRepository.save(watchList);
             if (!mediaItemRepository.existsById(mediaItem.getTmdbId())) {
