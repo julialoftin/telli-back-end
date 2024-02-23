@@ -98,7 +98,11 @@ public class ReviewController {
 //            System.out.println("Error getting reviews: " + exception.getMessage());
 //            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 //        }
+
         try {
+            if (errors.hasErrors()) {
+                return ResponseEntity.badRequest().build();
+            }
             if (reviewRepository.findByMediaItem_tmdbIdAndMediaItem_mediaType(mediaItemDTO.getTmdbId(), mediaItemDTO.getMediaType()).isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
             }
