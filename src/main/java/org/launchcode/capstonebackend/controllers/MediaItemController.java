@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,8 +34,12 @@ public class MediaItemController {
     AuthenticationController authenticationController;
 
     private MediaItem convertMediaItemDTOToEntity(MediaItemDTO mediaItemDTO) {
-        Optional<MediaItem> existingMediaItem = mediaItemRepository.findById(mediaItemDTO.getTmdbId());
-        return existingMediaItem.orElseGet(() -> new MediaItem(mediaItemDTO.getTmdbId(), mediaItemDTO.getMediaType()));
+        Optional<MediaItem> mediaItem = mediaItemRepository.findByTmdbIdAndMediaType(mediaItemDTO.getTmdbId(), mediaItemDTO.getMediaType());
+        if (mediaItem.isPresent()) {
+            return mediaItem.get();
+        } else {
+            return new MediaItem(mediaItemDTO.getTmdbId(), mediaItemDTO.getMediaType());
+        }
     }
 
     @PostMapping("/add-to-watchlist/{watchListId}")
@@ -59,15 +64,16 @@ public class MediaItemController {
             if (!watchList.getUser().equals(user)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
+
             MediaItem mediaItem = convertMediaItemDTOToEntity(mediaItemDTO);
-            // Checks if watchlist already contains media item
             List<MediaItem> mediaItems = watchListRepository.findAllMediaItemsByWatchListId(watchList.getId());
             if (mediaItems.contains(mediaItem)) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).build();
             }
+
             watchList.addMediaItemToList(mediaItem);
             watchListRepository.save(watchList);
-            if (!mediaItemRepository.existsById(mediaItem.getTmdbId())) {
+            if (!mediaItemRepository.existsById(mediaItem.getId())) {
                 mediaItemRepository.save(mediaItem);
             }
             return ResponseEntity.ok(watchList.getMediaItems());
@@ -128,17 +134,14 @@ public class MediaItemController {
             if (!watchList.getUser().equals(user)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
-            MediaItem mediaItemToDelete = mediaItemRepository.findById(mediaItemDTO.getTmdbId()).orElse(null);
 
-            if (mediaItemToDelete != null) {
-                watchList.getMediaItems().remove(mediaItemToDelete);
-
-                watchListRepository.save(watchList);
-
-                if (watchListRepository.countByMediaItemsContaining(mediaItemToDelete) == 0) {
-                    mediaItemRepository.delete(mediaItemToDelete);
-                }
+            Optional<MediaItem> optionalMediaItem = mediaItemRepository.findByTmdbIdAndMediaType(mediaItemDTO.getTmdbId(), mediaItemDTO.getMediaType());
+            if (optionalMediaItem.isEmpty()) {
+                return ResponseEntity.badRequest().build();
             }
+            MediaItem mediaItemToDelete = optionalMediaItem.get();
+            watchList.getMediaItems().remove(mediaItemToDelete);
+            watchListRepository.save(watchList);
 
             return ResponseEntity.ok().body(watchList.getMediaItems());
         } catch (Exception exception) {

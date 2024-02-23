@@ -35,8 +35,12 @@ public class ReviewController {
     AuthenticationController authenticationController;
 
     private MediaItem convertMediaItemDTOToEntity(MediaItemDTO mediaItemDTO) {
-        Optional<MediaItem> existingMediaItem = mediaItemRepository.findById(mediaItemDTO.getTmdbId());
-        return existingMediaItem.orElseGet(() -> new MediaItem(mediaItemDTO.getTmdbId(), mediaItemDTO.getMediaType()));
+        Optional<MediaItem> mediaItem = mediaItemRepository.findByTmdbIdAndMediaType(mediaItemDTO.getTmdbId(), mediaItemDTO.getMediaType());
+        if (mediaItem.isPresent()) {
+            return mediaItem.get();
+        } else {
+            return new MediaItem(mediaItemDTO.getTmdbId(), mediaItemDTO.getMediaType());
+        }
     }
 
     private Review convertReviewDTOToEntity(ReviewDTO reviewDTO) {
