@@ -10,9 +10,8 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-public class MediaItem {
+public class MediaItem extends AbstractEntity {
 
-    @Id
     @NotNull
     @Valid
     private int tmdbId;
@@ -76,13 +75,13 @@ public class MediaItem {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        MediaItem that = (MediaItem) o;
-        return tmdbId == that.tmdbId;
+        MediaItem mediaItem = (MediaItem) o;
+        return tmdbId == mediaItem.tmdbId && Objects.equals(mediaType, mediaItem.mediaType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), tmdbId);
+        return Objects.hash(super.hashCode(), tmdbId, mediaType);
     }
 }
 

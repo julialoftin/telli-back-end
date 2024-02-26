@@ -33,8 +33,12 @@ public class TagController {
     AuthenticationController authenticationController;
 
     private MediaItem convertMediaItemDTOToEntity(MediaItemDTO mediaItemDTO) {
-        Optional<MediaItem> existingMediaItem = mediaItemRepository.findById(mediaItemDTO.getTmdbId());
-        return existingMediaItem.orElseGet(() -> new MediaItem(mediaItemDTO.getTmdbId(), mediaItemDTO.getMediaType()));
+        Optional<MediaItem> mediaItem = mediaItemRepository.findByTmdbIdAndMediaType(mediaItemDTO.getTmdbId(), mediaItemDTO.getMediaType());
+        if (mediaItem.isPresent()) {
+            return mediaItem.get();
+        } else {
+            return new MediaItem(mediaItemDTO.getTmdbId(), mediaItemDTO.getMediaType());
+        }
     }
 
     private Tag convertTagDTOToEntity(TagDTO tagDTO) {
@@ -110,14 +114,15 @@ public class TagController {
         return ResponseEntity.ok().body(tagRepository.findAllTags());
     }
 
-    @GetMapping("get-tags-by-media-item/{tmdbId}")
-    public ResponseEntity<List<Tag>> getTagsByMediaItem(@PathVariable int tmdbId) {
+    @GetMapping("/get-tags-by-media-item")
+    public ResponseEntity<List<Tag>> getTagsByMediaItem(@RequestParam int tmdbId,
+                                                        @RequestParam String mediaType) {
         try {
-            if (tagRepository.findByMediaItems_tmdbId(tmdbId).isEmpty()) {
+            if (tagRepository.findByMediaItems_tmdbIdAndMediaItems_mediaType(tmdbId, mediaType).isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
             }
 
-            return ResponseEntity.ok().body(tagRepository.findByMediaItems_tmdbId(tmdbId));
+            return ResponseEntity.ok().body(tagRepository.findByMediaItems_tmdbIdAndMediaItems_mediaType(tmdbId, mediaType));
         } catch (Exception exception) {
             System.out.println("Error saving retrieving tags: " + exception.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

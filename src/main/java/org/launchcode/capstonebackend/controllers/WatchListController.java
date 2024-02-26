@@ -58,7 +58,6 @@ public class WatchListController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok().body(watchLists);
-
     }
 
     @GetMapping("get-by-id/{watchListId}")
